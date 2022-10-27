@@ -139,13 +139,37 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 # To better keep track of steps when training
 total_step = len(train_loader)
 
-# Making points for plotting
-loss_values = []
-loss_median = []
+#----------#
+# Accuracy #
+#----------#
+def check_accuracy(loader, model):
+
+    model.eval() # evaluation mode
+
+    # Don't need to compute gradients (for memory efficiency)
+    with torch.no_grad():
+        correct = 0
+        total = 0
+        for images, labels in test_loader:
+            images = images.to(device)
+            labels = labels.to(device)
+            outputs = model(images)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+    model.train()
+    return float(correct) / float(total) * 100
 
 #------------#
 #  Training  #
 #------------#
+# Making points for plotting
+loss_values = []
+loss_median = []
+train_accuracy = []
+test_accuracy = []
+
 # Training the model!
 # iterating through the number of epochs then the batches in our training data
 for epoch in range(num_epochs):
@@ -170,36 +194,42 @@ for epoch in range(num_epochs):
         if (i+1) % 500 == 0:
             print('Epoch [{}/{}], Step [{}/{}], Loss {:.4f}'
                 .format(epoch+1, num_epochs, i+1, total_step, loss.item()))
+
+    #-----------#
+    #  Testing  #
+    #-----------#
+    # Test the model! Inside the for loop
+    train_accuracy.append(check_accuracy(train_loader, model))
+    test_accuracy.append(check_accuracy(test_loader, model))
+
     loss_median.append(statistics.median(loss_values))
     loss_values = []
-
-#-----------#
-#  Testing  #
-#-----------#
-# Test the model!
-# In test phase, don't need to compute gradients (for memory efficiency)
-with torch.no_grad():
-    correct = 0
-    total = 0
-    for images, labels in test_loader:
-        images = images.to(device)
-        labels = labels.to(device)
-        outputs = model(images)
-        _, predicted = torch.max(outputs.data, 1)
-        total += labels.size(0)
-        correct += (predicted == labels).sum().item()
-
-    print('Accuracy of the network on the 10000 test images: {} %'
-        .format(100 * correct / total))
 
 #------------------#
 #  Table Creation  #
 #------------------#
 # Loss = number indicating how bad the model's prediction was on a single example.
 # model's prediction is perfect = loss is zero. Otherwise, loss is greater.
+# Loss over Epochs
 plt.plot(loss_median, label = 'Training Loss')
 plt.xlabel('Epoch')
 plt.ylabel('Loss')
 plt.title('Loss over Epochs')
+plt.legend()
+plt.show()
+
+# Training Accuracy over Epochs
+plt.plot(train_accuracy, label = 'Training Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.title('Training Accuracy over Epochs')
+plt.legend()
+plt.show()
+
+# Test Accuracy over Epochs
+plt.plot(test_accuracy, label = 'Testing Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+plt.title('Testing Accuracy over Epochs')
 plt.legend()
 plt.show()
