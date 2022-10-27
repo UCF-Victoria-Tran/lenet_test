@@ -1,0 +1,7 @@
+import torch
+import torch.nn as nn # helps in creating and training the neural network
+import torchvision
+import torchvision.transforms as transforms # crop, resize, rotate, and vertically flip randomly
+import matplotlib.pyplot as plt
+import numpy as np
+import statistics
