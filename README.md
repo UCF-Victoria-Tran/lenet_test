@@ -1,4 +1,4 @@
-#  Writing LeNet5 from Scratch in PyTorch - testing with MNIST.
+#  Writing LeNet5 from Scratch in PyTorch - Testing with MNIST.
 
  LeNet = one of the earliest Convolutional Neural Networks ever introduced.
  Proposed by Yann LeCun and others in 1998.
