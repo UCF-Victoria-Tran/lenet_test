@@ -1,3 +1,6 @@
+#-----------#
+#  Imports  #
+#-----------#
 # Importing the libraries
 import torch
 import torch.nn as nn # helps in creating and training the neural network
@@ -7,12 +10,18 @@ import matplotlib.pyplot as plt
 import numpy as np
 import statistics
 
+#-------------------#
+#  Hyperparameters  #
+#-------------------#
 # Define relevant variables for the machine learning task
 batch_size = 64  # number of samples that will be passed through the network at one time
 num_classes = 10 # targets/labels or categories, list of data set allocation attributes and their values
 learning_rate = 0.001 # configurable hyperparameter, small positive value 0.0 <-> 1.0, controls how quickly model adapted to problem
 num_epochs = 10 # number of complete passes of the entire training dataset passing through the training or learning process of the algorithm
 
+#-------------------#
+#  Device Settings  #
+#-------------------#
 # Device will run training on CPU
 device = torch.device('cpu')
 # If you have CUDA installed you can use this instead:
@@ -20,6 +29,9 @@ device = torch.device('cpu')
 # If you don't know if you have CUDA or not you can use this:
 # device = torch.device('cuda' if torch.cuda.is_avaliable() else 'cpu')
 
+#-------------------#
+#  Dataset Loading  #
+#-------------------#
 # Loading the dataset and preprocessing
 # ROOT offers naive support for supervised learning techniques, such as multivariate
 # classification (both binary and multi class) and regression. Also allows easy
@@ -49,6 +61,9 @@ test_dataset = torchvision.datasets.MNIST(
     download = True
 )
 
+#-----------#
+#  Loaders  #
+#-----------#
 # Data loaders allow us to iterate through the data in batches, and the data is loaded while iterating and
 # not at once in the start.
 # Can impede the performance in case of large datasets, but with a small dataset like MNIST it's fine
@@ -64,6 +79,9 @@ test_loader = torch.utils.data.DataLoader(
     shuffle = True
 )
 
+#------------------#
+#  LeNet Creation  #
+#------------------#
 # Defining the convolutional neural network
 # Creating a class that inherits from nn.Module as it contains many methods we need to utilize
 class LeNet5(nn.Module):
@@ -102,6 +120,9 @@ class LeNet5(nn.Module):
         out = self.fc2(out)
         return out
 
+#------------------#
+#  Some Variables  #
+#------------------#
 # Setting some hyperparameters, such as the loss function and the optimizer to be used
 model = LeNet5(num_classes).to(device)
 
@@ -122,6 +143,9 @@ total_step = len(train_loader)
 loss_values = []
 loss_median = []
 
+#------------#
+#  Training  #
+#------------#
 # Training the model!
 # iterating through the number of epochs then the batches in our training data
 for epoch in range(num_epochs):
@@ -147,7 +171,11 @@ for epoch in range(num_epochs):
             print('Epoch [{}/{}], Step [{}/{}], Loss {:.4f}'
                 .format(epoch+1, num_epochs, i+1, total_step, loss.item()))
     loss_median.append(statistics.median(loss_values))
+    loss_values = []
 
+#-----------#
+#  Testing  #
+#-----------#
 # Test the model!
 # In test phase, don't need to compute gradients (for memory efficiency)
 with torch.no_grad():
@@ -164,6 +192,9 @@ with torch.no_grad():
     print('Accuracy of the network on the 10000 test images: {} %'
         .format(100 * correct / total))
 
+#------------------#
+#  Table Creation  #
+#------------------#
 # Loss = number indicating how bad the model's prediction was on a single example.
 # model's prediction is perfect = loss is zero. Otherwise, loss is greater.
 plt.plot(loss_median, label = 'Training Loss')
